@@ -4,7 +4,7 @@ Deteccion de Precios en Gasolineras (A partir de Videos de la Gasolinera, encont
  - **Generar un video de salida, que contenga la etiqueta y generar una tabla de salida con los datos de la franquicia y los precios del tipo de combustible**  
  - **El video debe ser tomado en movimiento (automovil, transporte publico, etc)**  
 
-**Importante:** Descargar los archivos del drive de nuestros videos [clic aquí](https://drive.google.com/drive/folders/1lK8Mc3R0SBxvK3n0pefXGvico-b2Y8EE?usp=sharing)  
+**Importante:** Descargar los archivos del drive de nuestros videos [clic aquí](https://drive.google.com/drive/folders/1nJhVaritFRZadJz7631mRR2yBC4jxCIB?usp=sharing)  
 
 **Reporte del proyecto: [aqui](https://www.overleaf.com/3285391489mfvsyzkdfdtb)**
 ## Requerimientos  
