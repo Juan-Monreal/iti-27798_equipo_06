@@ -19,34 +19,57 @@ def createDir(path):
 
 
 def compare(frame, save, n):
+    """
+    Take the actual frame and convert it into a gray scale
+    Take the template image as gray scale
+    The template slides over the actual image and find the location where accuracy level matches
+    The actual frame is converted into different sizes, each time it matches the pattern,
+    and finds the largest correlation coefficient to locate the matches.
+    When result is greater than the accuracy level, mark that position with a rectangle
+
+    :param frame: of the current video
+    :param save: path to stored the image with the drawn rectangle
+    :param n: index of current video
+    """
     template = cv.imread('template.png')
+    # Convert the images to gray scale image
     template = cv.cvtColor(template, cv.COLOR_BGR2GRAY)
+    grayImage = cv.cvtColor(frame, cv.COLOR_BGR2GRAY)
+    # The Canny edge detector is an edge detection operator that uses a multi-stage algorithm to detect a wide range
+    # of edges in images.
     template = cv.Canny(template, 10, 25)
     height, width = template.shape[:2]
-    grayImage = cv.cvtColor(frame, cv.COLOR_BGR2GRAY)
+
     found = None
+
     for scale in np.linspace(0.2, 1.0, 20)[::-1]:
-        resize_img = imutils.resize(grayImage, width=int(grayImage.shape[1] * scale))
-        ratio = grayImage.shape[1] / float(resize_img.shape[1])
-        if resize_img.shape[0] < height or resize_img.shape[1] < width:
+        resizedImage = imutils.resize(grayImage, width=int(grayImage.shape[1] * scale))
+        ratio = grayImage.shape[1] / float(resizedImage.shape[1])
+        if resizedImage.shape[0] < height or resizedImage.shape[1] < width:
             break
-        e = cv.Canny(resize_img, 10, 25)
+        # Convert to edged image for checking
+        e = cv.Canny(resizedImage, 10, 25)
         match = cv.matchTemplate(e, template, cv.TM_CCOEFF)
-        (_, val_max, _, loc_max) = cv.minMaxLoc(match)
-        if found is None or val_max > found[0]:
-            found = (val_max, loc_max, ratio)
-    (_, loc_max, r) = found
-    (x_start, y_start) = (int(loc_max[0]), int(loc_max[1]))
-    (x_end, y_end) = (int((loc_max[0] + width)), int((loc_max[1] + height)))
+        _, maxValue, _, maxIndex = cv.minMaxLoc(match)  # find the global minimum and maximum
+        if found is None or maxValue > found[0]:
+            found = (maxValue, maxIndex, ratio)
+    # Get the information of the current found (matching) to get his coordinates
+    _, maxIndex, r = found
+    (xStart, yStart) = (int(maxIndex[0]), int(maxIndex[1]))
+    (xEnd, yEnd) = (int((maxIndex[0] + width)), int((maxIndex[1] + height)))
     # Draw rectangle around the template
-    cv.rectangle(frame, (x_start, y_start), (x_end, y_end), (153, 22, 0), 5)
-    # cv.imshow('Template Found', frame)
-    # cv.waitKey(0)
-    # print(save)
+    cv.rectangle(frame, (xStart, yStart), (xEnd, yEnd), (153, 22, 0), 5)
     cv.imwrite(f"{save}/{n}.png", frame)
 
 
 def frameByFrame(video, saveDir, gap=10):
+    """
+    Iteratively goes frame by frame of a video
+    Sends the frame to compare function who mades the logic
+    :param video: path to the video
+    :param saveDir: Directory to be stored the data
+    :param gap: Number of skipping frames
+    """
     name = video.split("\\")[-1].split(".")[0]
     savePath = os.path.join(saveDir, name)
     createDir(savePath)
