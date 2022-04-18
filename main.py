@@ -3,6 +3,8 @@ import os
 import numpy as np
 import cv2 as cv
 from glob import glob
+from sklearn.metrics import confusion_matrix
+import seaborn as sns
 
 
 def createDir(path):
@@ -97,14 +99,45 @@ def frameByFrame(video, saveDir, gap=10):
     pass
 
 
+def drawConfusionMatrix(test, prediction):
+    """
+       Draw a confusion matrix using sklearn.metrics package.
+       The confusion_matrix() method will give you an array that depicts the
+       True Positives, False Positives, False Negatives, and True negatives.
+       Once we have the confusion matrix created, we use the heatmap() method available in the
+       seaborn library to plot the confusion matrix
+       :param test: list of label's correctly labeled
+       :param prediction: list of the label's predicted
+       """
+    confusion = confusion_matrix(test, prediction)
+    ax = sns.heatmap(confusion, annot=True, cmap='Blues')
+    ax.set_title('Confusion Matrix')
+    ax.set_xlabel('\nPredicted Values')
+    ax.set_ylabel('Actual Values')
+    ax.xaxis.set_ticklabels(['false', 'true'])
+    ax.yaxis.set_ticklabels(['false', 'true'])
+    ax.figure.savefig("save/confusionMatrix.png", dpi=300)
+    # plt.show()
+
+
 def main():
     """
     Main function
     """
     videoPaths = glob("data/*")
     saveDir = "save"
+    actual = [1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 0, 1, 1, 1, 0, 1, 1, 1, 1, 1]
+    predicted = [1 for i in range(15)]
+    predicted.append(0)
+    predicted.append(0)
+    predicted.append(0)
+    predicted.append(0)
+    predicted.append(0)
+    print('Doing stuff\nPlease wait')
     for path in videoPaths:
         frameByFrame(path, saveDir)
+    drawConfusionMatrix(actual, predicted)
+    print('Done')
 
 
 if __name__ == "__main__":
