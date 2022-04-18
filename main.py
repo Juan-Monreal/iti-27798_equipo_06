@@ -5,6 +5,7 @@ import cv2 as cv
 from glob import glob
 from sklearn.metrics import confusion_matrix
 import seaborn as sns
+import easyocr
 
 
 def createDir(path):
