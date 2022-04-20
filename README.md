@@ -7,11 +7,10 @@ Deteccion de Precios en Gasolineras (A partir de Videos de la Gasolinera, encont
 **Importante:** Descargar los archivos del drive de nuestros videos [clic aquí](https://drive.google.com/drive/folders/1nJhVaritFRZadJz7631mRR2yBC4jxCIB?usp=sharing)  
 
 **Reporte del proyecto: [aqui](https://www.overleaf.com/3285391489mfvsyzkdfdtb)**
-## Requerimientos  
+## Requerimientos
 
-```python
+Revisar el archivo `requirements.txt`
 
-```
 ## Integrantes
 **iti-27798_equipo_06**  
 Equipo  6  Proyecto  6 Lenguaje:  Python
