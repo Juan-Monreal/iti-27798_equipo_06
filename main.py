@@ -17,6 +17,8 @@ def createDir(path):
     try:
         if not os.path.exists(path):
             os.makedirs(path)
+        else:
+            return True
     except OSError:
         print(f"ERROR: Creating directory with name {path}")
 
@@ -75,7 +77,9 @@ def frameByFrame(video, saveDir, gap=10):
     """
     name = video.split("\\")[-1].split(".")[0]
     savePath = os.path.join(saveDir, name)
-    createDir(savePath)
+    if createDir(savePath) == True:
+        print("Skipping one dir")
+        return 0
 
     capture = cv.VideoCapture(video)
     i = 1
