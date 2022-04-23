@@ -5,7 +5,10 @@ import cv2 as cv
 from glob import glob
 from sklearn.metrics import confusion_matrix
 import seaborn as sns
+from matplotlib import pyplot as plt
 import easyocr
+reader = easyocr.Reader(['es'])  # Set as global to only load the model in memory once, otherwise it can consume a lot
+                                 # of resources.
 
 
 def createDir(path):
@@ -64,7 +67,9 @@ def compare(frame, save, n):
     (xEnd, yEnd) = (int((maxIndex[0] + width)), int((maxIndex[1] + height)))
     # Draw rectangle around the template
     cv.rectangle(frame, (xStart, yStart), (xEnd, yEnd), (153, 22, 0), 5)
-    cv.imwrite(f"{save}/{n}.png", frame)
+    path = f"{save}/{n}.png"
+    cv.imwrite(path, frame)
+    doOCR(path)
 
 
 def frameByFrame(video, saveDir, gap=10):
@@ -77,8 +82,9 @@ def frameByFrame(video, saveDir, gap=10):
     """
     name = video.split("\\")[-1].split(".")[0]
     savePath = os.path.join(saveDir, name)
+
     if createDir(savePath) == True:
-        print("Skipping one dir")
+        print("----Skipping one dir")
         return 0
 
     capture = cv.VideoCapture(video)
@@ -90,13 +96,9 @@ def frameByFrame(video, saveDir, gap=10):
             capture.release()
             break
         if i == 1:
-            # cv.imshow('frames', frame)
-            # cv.imwrite(f"{savePath}/{i}.png", frame)
             compare(frame, savePath, i)
         else:
             if i % gap == 0:
-                # cv.imshow('frames', frame)
-                # cv.imwrite(f"{savePath}/{i}.png", frame)
                 compare(frame, save=savePath, n=i)
 
         i += 1
@@ -122,7 +124,32 @@ def drawConfusionMatrix(test, prediction):
     ax.xaxis.set_ticklabels(['false', 'true'])
     ax.yaxis.set_ticklabels(['false', 'true'])
     ax.figure.savefig("save/confusionMatrix.png", dpi=300)
-    # plt.show()
+
+
+def doOCR(image):
+    """
+    Here, we are using the Reader class from easyocr class and then passing [‘es’] as an attribute which means that now
+    it will only detect the Spanish part of the image as text.
+    Then, we are trying to get the coordinates to draw the text over our image on which we have to perform our detection
+    In the top_left variable, we are getting the coordinate of the top_left corner in the form of tuple accessing from
+    results. Similarly, we can see that in the bottom_right coordinate. Getting the coordinate of text from 2-d array
+    format.
+    :param image: current image to do OCR
+    """
+    # print('DO OCR', image)
+    spacer = 100  # spacer variable will help the text to remain sorted and equally spaced.
+    result = reader.readtext(image)
+    if len(result) < 1:
+        return False
+    img = cv.imread(image)
+    for detection in result:
+        top_left = tuple(detection[0][0])
+        bottom_right = tuple(detection[0][2])
+        text = detection[1]
+        font = cv.FONT_HERSHEY_SIMPLEX
+        img = cv.putText(img, text, (20, spacer), font, 0.5, (0, 255, 0), 2, cv.LINE_AA)
+        spacer += 15
+    cv.imwrite(image, img)
 
 
 def main():
@@ -143,6 +170,8 @@ def main():
         frameByFrame(path, saveDir)
     drawConfusionMatrix(actual, predicted)
     print('Done')
+    print('Check the obtained data in save/ directory')
+    print('Have a nice day!')
 
 
 if __name__ == "__main__":
